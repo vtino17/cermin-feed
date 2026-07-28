@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  compareSnapshots,
   createSnapshot,
   toPublicSummary,
   type FeedItem,
@@ -9,6 +10,7 @@ import {
 import demoData from '../../../samples/feed-demo.json';
 import { Distribution } from './components/Distribution';
 import { ImportDialog } from './components/ImportDialog';
+import { VaultDialog } from './components/VaultDialog';
 import { clearSnapshots, loadSnapshots, saveSnapshots } from './lib/storage';
 
 const demoItems = demoData as FeedItem[];
@@ -57,12 +59,22 @@ export function App() {
   });
   const [activeId, setActiveId] = useState(() => snapshots[0]?.id ?? '');
   const [importOpen, setImportOpen] = useState(false);
+  const [vaultOpen, setVaultOpen] = useState(false);
+  const [persistenceEnabled, setPersistenceEnabled] = useState(
+    () => window.localStorage.getItem('cermin:persistence') !== 'off',
+  );
   const [activeTab, setActiveTab] = useState<'overview' | 'patterns' | 'items'>('overview');
   const [toast, setToast] = useState('');
 
   useEffect(() => {
-    saveSnapshots(window.localStorage, snapshots);
-  }, [snapshots]);
+    if (persistenceEnabled) {
+      saveSnapshots(window.localStorage, snapshots);
+      window.localStorage.setItem('cermin:persistence', 'on');
+      return;
+    }
+    clearSnapshots(window.localStorage);
+    window.localStorage.setItem('cermin:persistence', 'off');
+  }, [persistenceEnabled, snapshots]);
 
   useEffect(() => {
     if (!toast) return;
@@ -71,8 +83,13 @@ export function App() {
   }, [toast]);
 
   const active = snapshots.find((snapshot) => snapshot.id === activeId) ?? snapshots[0];
-  const previous = snapshots.find((snapshot) => snapshot.id !== active?.id);
+  const activeIndex = snapshots.findIndex((snapshot) => snapshot.id === active?.id);
+  const previous = activeIndex >= 0 ? snapshots[activeIndex + 1] : undefined;
   const metrics = active?.metrics;
+  const comparison = useMemo(
+    () => (active && previous ? compareSnapshots(previous, active) : null),
+    [active, previous],
+  );
 
   const patternCounts = useMemo(() => {
     if (!metrics) return [];
@@ -83,12 +100,20 @@ export function App() {
 
   if (!active || !metrics) return null;
 
-  const handleImport = (label: string, items: FeedItem[]) => {
+  const handleImport = (
+    label: string,
+    items: FeedItem[],
+    meta: { redactionCount: number; issueCount: number },
+  ) => {
     const snapshot = createSnapshot(label, items);
     setSnapshots((current) => [snapshot, ...current].slice(0, 12));
     setActiveId(snapshot.id);
     setImportOpen(false);
-    setToast(`${items.length} posting dianalisis sepenuhnya di perangkat.`);
+    const privacyNote = meta.redactionCount
+      ? ` ${meta.redactionCount} data sensitif disamarkan.`
+      : '';
+    const issueNote = meta.issueCount ? ` ${meta.issueCount} baris dilewati.` : '';
+    setToast(`${items.length} posting dianalisis di perangkat.${privacyNote}${issueNote}`);
   };
 
   const resetData = () => {
@@ -115,10 +140,27 @@ export function App() {
           <span className="privacy-signal">
             <i /> Pemrosesan lokal aktif
           </span>
-          <span>Tak ada data yang dikirim</span>
+          <button
+            className="session-toggle"
+            type="button"
+            aria-pressed={!persistenceEnabled}
+            onClick={() => {
+              setPersistenceEnabled((current) => !current);
+              setToast(
+                persistenceEnabled
+                  ? 'Mode sesi aktif. Snapshot tidak disimpan setelah tab ditutup.'
+                  : 'Penyimpanan lokal aktif kembali.',
+              );
+            }}
+          >
+            {persistenceEnabled ? 'Tersimpan lokal' : 'Mode sesi'}
+          </button>
         </div>
         <div className="topbar-actions">
           <a href="#metode">Metode</a>
+          <button className="vault-button" type="button" onClick={() => setVaultOpen(true)}>
+            Vault
+          </button>
           <button className="primary-button" type="button" onClick={() => setImportOpen(true)}>
             + Impor snapshot
           </button>
@@ -178,7 +220,7 @@ export function App() {
               <h1>{active.label}</h1>
               <p>
                 {metrics.totalItems} posting dari {metrics.uniqueSources} sumber · sekitar{' '}
-                {metrics.estimatedMinutes} menit waktu baca
+                {metrics.estimatedMinutes} menit waktu baca · keyakinan {metrics.confidence.score}%
               </p>
             </div>
             <div className="report-actions">
@@ -233,13 +275,10 @@ export function App() {
                       cepat.
                     </p>
                   </div>
-                  {previous && (
-                    <span
-                      className={`delta ${metrics.agencyScore >= previous.metrics.agencyScore ? 'up' : 'down'}`}
-                    >
-                      {metrics.agencyScore >= previous.metrics.agencyScore ? '↑' : '↓'}{' '}
-                      {Math.abs(metrics.agencyScore - previous.metrics.agencyScore)} dari snapshot
-                      lain
+                  {comparison && (
+                    <span className={`delta ${comparison.deltas.agencyScore >= 0 ? 'up' : 'down'}`}>
+                      {comparison.deltas.agencyScore >= 0 ? '↑' : '↓'}{' '}
+                      {Math.abs(comparison.deltas.agencyScore)} dari snapshot sebelumnya
                     </span>
                   )}
                 </article>
@@ -287,6 +326,55 @@ export function App() {
                   Lihat buktinya →
                 </button>
               </section>
+
+              <section className="expert-strip" aria-label="Metrik analisis lanjutan">
+                <article>
+                  <span>Konsentrasi sumber</span>
+                  <strong>{metrics.sourceConcentration}</strong>
+                  <small>Indeks 0–100; makin tinggi makin terpusat</small>
+                </article>
+                <article>
+                  <span>Ledakan temporal</span>
+                  <strong>{metrics.temporalBurst}%</strong>
+                  <small>Porsi item pada jam terpadat</small>
+                </article>
+                <article>
+                  <span>Keyakinan analisis</span>
+                  <strong>{metrics.confidence.score}%</strong>
+                  <small>{metrics.confidence.reasons[0]}</small>
+                </article>
+                <article>
+                  <span>Klaster narasi</span>
+                  <strong>{metrics.narrativeClusters.length}</strong>
+                  <small>Kelompok cerita lintas item yang mirip</small>
+                </article>
+              </section>
+
+              {comparison && (
+                <section className="comparison-panel">
+                  <div>
+                    <p className="eyebrow">Perubahan antar-snapshot</p>
+                    <h2>Apa yang bergeser sejak snapshot sebelumnya?</h2>
+                    <p>{comparison.summary[0]}</p>
+                  </div>
+                  <div className="delta-grid">
+                    {[
+                      ['Kendali', comparison.deltas.agencyScore],
+                      ['Sumber', comparison.deltas.sourceDiversity],
+                      ['Topik', comparison.deltas.topicDiversity],
+                      ['Pemicu', comparison.deltas.baitRate],
+                    ].map(([label, delta]) => (
+                      <span key={label}>
+                        {label}
+                        <strong className={Number(delta) >= 0 ? 'positive' : 'negative'}>
+                          {Number(delta) >= 0 ? '+' : ''}
+                          {delta}
+                        </strong>
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               <section className="analysis-grid">
                 <article className="panel topic-panel">
@@ -424,6 +512,26 @@ export function App() {
                   </div>
                 ))}
               </div>
+              <div className="cluster-panel">
+                <h3>Klaster narasi</h3>
+                <p>
+                  Item terhubung bila kemiripan teks melewati ambang. Klaster membantu melihat
+                  pengulangan cerita lintas sumber.
+                </p>
+                {metrics.narrativeClusters.map((cluster) => (
+                  <article key={cluster.id}>
+                    <div>
+                      <strong>{cluster.itemIds.length} item</strong>
+                      <span>{cluster.sourceCount} sumber</span>
+                    </div>
+                    <p>{cluster.topTerms.join(' · ')}</p>
+                    <small>rata-rata kemiripan {cluster.averageSimilarity}%</small>
+                  </article>
+                ))}
+                {!metrics.narrativeClusters.length && (
+                  <div className="empty-state">Belum ada klaster narasi yang kuat.</div>
+                )}
+              </div>
             </section>
           )}
 
@@ -481,6 +589,17 @@ export function App() {
         open={importOpen}
         onClose={() => setImportOpen(false)}
         onImport={handleImport}
+      />
+      <VaultDialog
+        open={vaultOpen}
+        snapshot={active}
+        onClose={() => setVaultOpen(false)}
+        onRestore={(restored) => {
+          const snapshot = createSnapshot(`${restored.label} — dipulihkan`, restored.items);
+          setSnapshots((current) => [snapshot, ...current].slice(0, 12));
+          setActiveId(snapshot.id);
+          setToast('Archive berhasil didekripsi dan dianalisis ulang di perangkat.');
+        }}
       />
       {toast && (
         <div className="toast" role="status">

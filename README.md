@@ -6,7 +6,7 @@ Cermin adalah observatorium feed pribadi yang berjalan lokal di browser. Ia memb
 melihat konsentrasi sumber, keragaman topik, pola bahasa yang meminta reaksi cepat, dan repetisi
 narasi dalam sebuah snapshot feed—tanpa mengirim teks atau nama akun ke server.
 
-> Status: MVP. Skor Cermin adalah alat refleksi heuristik, bukan pengukur kebenaran, bias politik,
+> Status: beta lokal. Skor Cermin adalah alat refleksi heuristik, bukan pengukur kebenaran, bias politik,
 > kesehatan mental, ataupun diagnosis “filter bubble”.
 
 ## Mengapa dibuat?
@@ -23,10 +23,15 @@ biarkan pengguna mengambil keputusan sendiri.
 - Chrome/Chromium extension dengan izin minimum `activeTab`.
 - Normalized Shannon entropy untuk variasi sumber dan topik.
 - Cosine similarity untuk menemukan narasi berulang.
+- Klaster narasi lintas sumber dan perbandingan perubahan antar-snapshot.
+- Indeks konsentrasi sumber, ledakan temporal, dan skor keyakinan berbasis kualitas sampel.
 - Kamus pola transparan untuk engagement bait, urgensi, outrage, dan klaim otoritas.
 - Estimasi waktu baca dan skor “ruang kendali feed”.
 - Ekspor ringkasan publik tanpa teks, URL, atau nama sumber.
-- Ekspor snapshot privat untuk backup pribadi.
+- Redaksi email, nomor telepon Indonesia, dan nomor panjang sebelum data disimpan.
+- Vault backup terenkripsi AES-256-GCM dengan kunci PBKDF2-SHA-256.
+- Mode sesi tanpa persistensi dan PWA yang dapat digunakan offline.
+- Migrasi otomatis snapshot analisis v1 ke metrik v2.
 - Sample dataset Indonesia, pengujian unit, Docker, dan GitHub Actions.
 
 ## Struktur
@@ -81,7 +86,8 @@ JSON:
 ]
 ```
 
-CSV menggunakan header `text,source,platform,capturedAt`. Hanya `text` yang wajib.
+CSV menggunakan header `text,source,platform,capturedAt`. Hanya `text` yang wajib. Impor dibatasi
+10 MB dan 500 item untuk menjaga analisis pasangan tetap responsif di perangkat.
 
 ## Pemeriksaan kualitas
 
@@ -100,13 +106,15 @@ docker run --rm -p 8080:80 cermin-feed
 ## Metodologi
 
 Metode dan batas interpretasi dijelaskan di [docs/methodology.md](docs/methodology.md). Model privasi
-ada di [docs/privacy.md](docs/privacy.md).
+ada di [docs/privacy.md](docs/privacy.md), dengan asumsi serangan rinci di
+[docs/threat-model.md](docs/threat-model.md).
 
 ## Roadmap
 
-- [ ] PWA offline dan enkripsi snapshot dengan passphrase.
+- [x] PWA offline dan enkripsi snapshot dengan passphrase.
 - [ ] Kamus komunitas multibahasa dengan versioning.
-- [ ] Perbandingan snapshot berdasarkan jam dan platform.
+- [x] Perbandingan metrik antar-snapshot.
+- [ ] Perbandingan snapshot tersegmentasi berdasarkan jam dan platform.
 - [ ] Importer arsip resmi dari platform, bukan scraping.
 - [ ] Topic model on-device opsional dengan WebGPU.
 - [ ] Dataset benchmark untuk Bahasa Indonesia.

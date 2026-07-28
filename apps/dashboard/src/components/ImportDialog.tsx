@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { FeedItem } from '@cermin/analyzer';
-import { parseFeedFile } from '@cermin/analyzer';
+import { parseFeedFileDetailed } from '@cermin/analyzer';
 
 export function ImportDialog({
   open,
@@ -9,12 +9,17 @@ export function ImportDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onImport: (label: string, items: FeedItem[]) => void;
+  onImport: (
+    label: string,
+    items: FeedItem[],
+    meta: { redactionCount: number; issueCount: number },
+  ) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [label, setLabel] = useState('Snapshot baru');
   const [error, setError] = useState('');
   const [dragging, setDragging] = useState(false);
+  const [redactSensitive, setRedactSensitive] = useState(true);
 
   if (!open) return null;
 
@@ -22,9 +27,15 @@ export function ImportDialog({
     if (!file) return;
     setError('');
     try {
-      const items = parseFeedFile(await file.text(), file.name);
-      if (!items.length) throw new Error('Tidak menemukan posting yang memiliki kolom text.');
-      onImport(label.trim() || file.name, items);
+      const parsed = parseFeedFileDetailed(await file.text(), file.name, {
+        redactSensitive,
+      });
+      if (!parsed.items.length)
+        throw new Error('Tidak menemukan posting yang memiliki kolom text.');
+      onImport(label.trim() || file.name, parsed.items, {
+        redactionCount: parsed.redactionCount,
+        issueCount: parsed.issues.length,
+      });
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'File tidak dapat dibaca.');
     }
@@ -51,6 +62,20 @@ export function ImportDialog({
         <label className="label-field">
           Nama snapshot
           <input value={label} maxLength={60} onChange={(event) => setLabel(event.target.value)} />
+        </label>
+
+        <label className="redaction-toggle">
+          <input
+            type="checkbox"
+            checked={redactSensitive}
+            onChange={(event) => setRedactSensitive(event.target.checked)}
+          />
+          <span>
+            <strong>Redaksi data sensitif</strong>
+            <small>
+              Email, nomor telepon Indonesia, dan nomor panjang diganti sebelum disimpan.
+            </small>
+          </span>
         </label>
 
         <button

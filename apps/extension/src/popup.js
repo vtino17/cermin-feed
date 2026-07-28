@@ -15,6 +15,11 @@ const platformFromHost = (host) => {
 };
 
 function extractVisibleFeed() {
+  const redact = (value) =>
+    value
+      .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[EMAIL]')
+      .replace(/(?<!\d)(?:\+62|62|0)8[1-9][\d\s().-]{6,14}\d(?!\d)/g, '[PHONE]')
+      .replace(/\b\d{13,16}\b/g, '[LONG_NUMBER]');
   const selectors = [
     'article',
     '[role="article"]',
@@ -36,16 +41,17 @@ function extractVisibleFeed() {
       const sourceElement = element.querySelector(
         '[data-testid="User-Name"], h3, h4, a[href*="/user/"], a[href*="/channel/"], .update-components-actor__name',
       );
-      const text = (element.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 5000);
+      const text = redact((element.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 5000));
       return {
         id: `capture-${Date.now()}-${index}`,
-        source: (sourceElement?.textContent || 'Tidak diketahui')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .slice(0, 120),
+        source: redact(
+          (sourceElement?.textContent || 'Tidak diketahui')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 120),
+        ),
         text,
         capturedAt: new Date().toISOString(),
-        url: location.href,
         host: location.hostname,
       };
     })
