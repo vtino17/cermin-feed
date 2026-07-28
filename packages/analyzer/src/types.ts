@@ -44,12 +44,30 @@ export type SimilarPair = {
   similarity: number;
 };
 
+export type NarrativeCluster = {
+  id: string;
+  itemIds: string[];
+  sourceCount: number;
+  averageSimilarity: number;
+  topTerms: string[];
+};
+
+export type AnalysisConfidence = {
+  score: number;
+  sampleSize: number;
+  metadataCompleteness: number;
+  reasons: string[];
+};
+
 export type FeedMetrics = {
+  analysisVersion: 2;
   totalItems: number;
   uniqueSources: number;
   estimatedMinutes: number;
   sourceDiversity: number;
   topicDiversity: number;
+  sourceConcentration: number;
+  temporalBurst: number;
   agencyScore: number;
   baitRate: number;
   repetitionRate: number;
@@ -58,6 +76,9 @@ export type FeedMetrics = {
   platformDistribution: DistributionEntry[];
   patterns: PatternHit[];
   similarPairs: SimilarPair[];
+  narrativeClusters: NarrativeCluster[];
+  temporalDistribution: DistributionEntry[];
+  confidence: AnalysisConfidence;
   insights: string[];
 };
 
@@ -70,7 +91,7 @@ export type Snapshot = {
 };
 
 export type PublicSummary = {
-  schema: 'cermin.public-summary.v1';
+  schema: 'cermin.public-summary.v2';
   createdAt: string;
   itemCount: number;
   metrics: Pick<
@@ -80,7 +101,37 @@ export type PublicSummary = {
     | 'agencyScore'
     | 'baitRate'
     | 'repetitionRate'
+    | 'sourceConcentration'
+    | 'temporalBurst'
     | 'platformDistribution'
     | 'topicDistribution'
   >;
+  confidence: Pick<AnalysisConfidence, 'score' | 'sampleSize' | 'metadataCompleteness'>;
+};
+
+export type SnapshotComparison = {
+  baselineId: string;
+  currentId: string;
+  deltas: {
+    agencyScore: number;
+    sourceDiversity: number;
+    topicDiversity: number;
+    baitRate: number;
+    repetitionRate: number;
+  };
+  emergingTopics: DistributionEntry[];
+  recedingTopics: DistributionEntry[];
+  summary: string[];
+};
+
+export type ImportIssue = {
+  row: number;
+  field: string;
+  message: string;
+};
+
+export type ParsedFeed = {
+  items: FeedItem[];
+  issues: ImportIssue[];
+  redactionCount: number;
 };
