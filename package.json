@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "corepack pnpm -r --if-present run build",
+    "build": "corepack pnpm -r --if-present run build && node -e \"const fs=require('node:fs');fs.rmSync('dist',{recursive:true,force:true});fs.cpSync('apps/dashboard/dist','dist',{recursive:true})\"",
     "dev": "pnpm --filter @cermin/dashboard dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
