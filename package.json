@@ -1,0 +1,32 @@
+{
+  "name": "cermin-feed",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A local-first observatory for understanding what shapes your social feed.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.14.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r --if-present run build",
+    "dev": "pnpm --filter @cermin/dashboard dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "pnpm -r --if-present run lint",
+    "test": "pnpm -r --if-present run test",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "prettier": "^3.9.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

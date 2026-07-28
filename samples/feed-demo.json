@@ -1,0 +1,86 @@
+[
+  {
+    "id": "demo-01",
+    "platform": "x",
+    "source": "TeknoHariIni",
+    "text": "AI lokal membantu developer Indonesia membuat software yang lebih hemat data.",
+    "capturedAt": "2026-07-28T00:10:00.000Z"
+  },
+  {
+    "id": "demo-02",
+    "platform": "linkedin",
+    "source": "KarierDigital",
+    "text": "Tiga pelajaran membangun tim teknologi tanpa budaya lembur.",
+    "capturedAt": "2026-07-28T00:14:00.000Z"
+  },
+  {
+    "id": "demo-03",
+    "platform": "x",
+    "source": "ViralSekarang",
+    "text": "BREAKING! Fakta yang disembunyikan. Baca sebelum dihapus dan share kalau setuju!",
+    "capturedAt": "2026-07-28T00:19:00.000Z"
+  },
+  {
+    "id": "demo-04",
+    "platform": "reddit",
+    "source": "r/indonesia",
+    "text": "Diskusi komunitas tentang transportasi publik dan kualitas udara Jakarta.",
+    "capturedAt": "2026-07-28T00:23:00.000Z"
+  },
+  {
+    "id": "demo-05",
+    "platform": "youtube",
+    "source": "BelajarTerbuka",
+    "text": "Kelas singkat memahami inflasi, suku bunga, dan dampaknya pada UMKM.",
+    "capturedAt": "2026-07-28T00:29:00.000Z"
+  },
+  {
+    "id": "demo-06",
+    "platform": "instagram",
+    "source": "HidupSehat",
+    "text": "Dokter menjelaskan hubungan tidur, cahaya malam, dan kesehatan mental.",
+    "capturedAt": "2026-07-28T00:34:00.000Z"
+  },
+  {
+    "id": "demo-07",
+    "platform": "x",
+    "source": "ViralSekarang",
+    "text": "Wajib tahu! Mereka tidak ingin kamu tahu fakta ini. Repost sekarang juga!",
+    "capturedAt": "2026-07-28T00:39:00.000Z"
+  },
+  {
+    "id": "demo-08",
+    "platform": "reddit",
+    "source": "r/opensource",
+    "text": "Proyek open source baru membuat alat audit algoritma yang berjalan sepenuhnya lokal.",
+    "capturedAt": "2026-07-28T00:45:00.000Z"
+  },
+  {
+    "id": "demo-09",
+    "platform": "linkedin",
+    "source": "KarierDigital",
+    "text": "Cara tim teknologi mendokumentasikan keputusan agar developer baru cepat belajar.",
+    "capturedAt": "2026-07-28T00:48:00.000Z"
+  },
+  {
+    "id": "demo-10",
+    "platform": "youtube",
+    "source": "BumiKita",
+    "text": "Riset kualitas udara dan solusi energi bersih untuk kota tropis.",
+    "capturedAt": "2026-07-28T00:55:00.000Z"
+  },
+  {
+    "id": "demo-11",
+    "platform": "x",
+    "source": "TeknoHariIni",
+    "text": "Developer Indonesia memakai AI lokal untuk membuat software yang lebih hemat data.",
+    "capturedAt": "2026-07-28T01:02:00.000Z"
+  },
+  {
+    "id": "demo-12",
+    "platform": "instagram",
+    "source": "RuangBudaya",
+    "text": "Museum kecil merawat arsip musik dan sejarah kota bersama relawan.",
+    "capturedAt": "2026-07-28T01:08:00.000Z"
+  }
+]

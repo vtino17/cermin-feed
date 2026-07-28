@@ -1,0 +1,10 @@
+{
+  "name": "@cermin/extension",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node --check src/popup.js && node --check src/service-worker.js",
+    "lint": "node --check src/popup.js && node --check src/service-worker.js",
+    "typecheck": "node --check src/popup.js && node --check src/service-worker.js"
+  }
+}

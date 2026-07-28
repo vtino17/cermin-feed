@@ -1,0 +1,146 @@
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #eceeea;
+  background: #151716;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  width: 340px;
+  min-height: 430px;
+  margin: 0;
+}
+header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+header > div {
+  display: flex;
+  flex-direction: column;
+}
+header strong {
+  font-size: 14px;
+}
+header small {
+  color: #8f9691;
+  font-size: 8px;
+}
+.mark {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #f6c667;
+  border-radius: 50%;
+}
+.mark::before {
+  content: '';
+  width: 13px;
+  height: 20px;
+  border: 1px solid #f6c667;
+  border-radius: 50%;
+}
+.mark i {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #f6c667;
+}
+.local {
+  margin-left: auto;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: rgba(122, 182, 162, 0.1);
+  color: #7ab6a2;
+  font: 8px monospace;
+  text-transform: uppercase;
+}
+main {
+  padding: 24px 18px;
+}
+.eyebrow {
+  margin: 0 0 9px;
+  color: #f6c667;
+  font: 8px monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+h1 {
+  max-width: 260px;
+  margin: 0 0 10px;
+  font-size: 28px;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+}
+.intro {
+  margin-bottom: 22px;
+  color: #9aa19c;
+  font-size: 11px;
+  line-height: 1.55;
+}
+button {
+  width: 100%;
+  padding: 11px;
+  border: 0;
+  border-radius: 7px;
+  background: #f6c667;
+  color: #201d14;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 11px;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+#result {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: #1d211e;
+}
+#result strong {
+  color: #7ab6a2;
+  font-size: 17px;
+}
+#result p {
+  color: #8f9691;
+  font-size: 9px;
+  line-height: 1.45;
+}
+.secondary {
+  border: 1px solid rgba(246, 198, 103, 0.3);
+  background: transparent;
+  color: #f6c667;
+}
+#status {
+  min-height: 14px;
+  color: #e6845c;
+  font-size: 9px;
+}
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #686e6a;
+  font: 8px monospace;
+}
+footer button {
+  width: auto;
+  padding: 0;
+  background: transparent;
+  color: #9e7160;
+  font: 8px monospace;
+  text-decoration: underline;
+}

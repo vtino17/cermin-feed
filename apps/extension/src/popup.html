@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Cermin Capture</title>
+  </head>
+  <body>
+    <header>
+      <span class="mark"><i></i></span>
+      <div><strong>cermin</strong><small>capture</small></div>
+      <span class="local">lokal</span>
+    </header>
+    <main>
+      <p class="eyebrow">Snapshot atas perintahmu</p>
+      <h1>Ambil yang sedang terlihat.</h1>
+      <p class="intro">
+        Cermin membaca teks posting yang terlihat pada tab aktif. Tidak berjalan di latar belakang.
+      </p>
+      <button id="capture" type="button">Ambil snapshot feed</button>
+      <section id="result" hidden>
+        <strong id="count">0 posting</strong>
+        <p>Snapshot disimpan di extension sampai kamu mengunduh atau menghapusnya.</p>
+        <button id="download" class="secondary" type="button">Unduh JSON untuk dashboard</button>
+      </section>
+      <p id="status" role="status"></p>
+    </main>
+    <footer>
+      <span>activeTab saja</span>
+      <button id="clear" type="button">Hapus data</button>
+    </footer>
+    <script src="popup.js"></script>
+  </body>
+</html>
