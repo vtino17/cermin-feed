@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "pnpm -r --if-present run build",
+    "build": "corepack pnpm -r --if-present run build",
     "dev": "pnpm --filter @cermin/dashboard dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
