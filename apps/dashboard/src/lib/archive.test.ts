@@ -26,10 +26,18 @@ describe('encrypted archive', () => {
 
   it('rejects short and incorrect passphrases', async () => {
     const snapshot = createSnapshot('Rahasia', items);
-    await expect(encryptSnapshot(snapshot, 'pendek')).rejects.toThrow('minimal 12');
+    await expect(encryptSnapshot(snapshot, 'short')).rejects.toThrow('at least 12');
     const archive = await encryptSnapshot(snapshot, 'passphrase-yang-kuat');
     await expect(decryptSnapshot(archive, 'passphrase-yang-salah')).rejects.toThrow(
-      'tidak dapat dibuka',
+      'could not be opened',
     );
+  });
+
+  it('rejects oversized key material before decoding it', async () => {
+    const snapshot = createSnapshot('Secret', items);
+    const archive = await encryptSnapshot(snapshot, 'strong-passphrase');
+    archive.keyDerivation.salt = 'A'.repeat(1_000_000);
+
+    await expect(decryptSnapshot(archive, 'strong-passphrase')).rejects.toThrow('not recognized');
   });
 });

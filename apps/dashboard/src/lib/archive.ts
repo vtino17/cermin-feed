@@ -16,6 +16,8 @@ export type EncryptedArchive = {
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
+const maxCiphertextCharacters = 20_000_000;
+const maxArchiveCharacters = maxCiphertextCharacters + 4096;
 
 function toBase64(value: Uint8Array): string {
   let binary = '';
@@ -55,7 +57,7 @@ export async function encryptSnapshot(
   snapshot: Snapshot,
   passphrase: string,
 ): Promise<EncryptedArchive> {
-  if (passphrase.length < 12) throw new Error('Passphrase minimal 12 karakter.');
+  if (passphrase.length < 12) throw new Error('Passphrase must contain at least 12 characters.');
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const iterations = 600000;
@@ -110,6 +112,9 @@ export async function decryptSnapshot(
   passphrase: string,
 ): Promise<Snapshot> {
   try {
+    if (typeof archiveInput === 'string' && archiveInput.length > maxArchiveCharacters) {
+      throw new Error('Archive format is not recognized.');
+    }
     const archive =
       typeof archiveInput === 'string'
         ? (JSON.parse(archiveInput) as EncryptedArchive)
@@ -121,14 +126,21 @@ export async function decryptSnapshot(
       archive.keyDerivation.hash !== 'SHA-256' ||
       !Number.isInteger(archive.keyDerivation.iterations) ||
       archive.keyDerivation.iterations < 100000 ||
-      archive.keyDerivation.iterations > 2000000
+      archive.keyDerivation.iterations > 2000000 ||
+      typeof archive.keyDerivation.salt !== 'string' ||
+      archive.keyDerivation.salt.length !== 24 ||
+      typeof archive.iv !== 'string' ||
+      archive.iv.length !== 16 ||
+      typeof archive.ciphertext !== 'string' ||
+      archive.ciphertext.length === 0 ||
+      archive.ciphertext.length > maxCiphertextCharacters
     ) {
-      throw new Error('Format archive tidak dikenali.');
+      throw new Error('Archive format is not recognized.');
     }
     const salt = fromBase64(archive.keyDerivation.salt);
     const iv = fromBase64(archive.iv);
-    if (salt.length !== 16 || iv.length !== 12 || archive.ciphertext.length > 20000000) {
-      throw new Error('Format archive tidak dikenali.');
+    if (salt.length !== 16 || iv.length !== 12) {
+      throw new Error('Archive format is not recognized.');
     }
     const key = await deriveKey(passphrase, salt, archive.keyDerivation.iterations);
     const plaintext = await crypto.subtle.decrypt(
@@ -137,15 +149,15 @@ export async function decryptSnapshot(
       fromBase64(archive.ciphertext),
     );
     const snapshot = JSON.parse(decoder.decode(plaintext)) as unknown;
-    if (!isSnapshot(snapshot)) throw new Error('Isi archive bukan snapshot Cermin.');
+    if (!isSnapshot(snapshot)) throw new Error('Archive does not contain a Cermin snapshot.');
     return snapshot;
   } catch (error) {
     if (
       error instanceof Error &&
-      (error.message.includes('snapshot Cermin') || error.message.includes('tidak dikenali'))
+      (error.message.includes('Cermin snapshot') || error.message.includes('not recognized'))
     ) {
       throw error;
     }
-    throw new Error('Archive tidak dapat dibuka. Periksa passphrase atau integritas file.');
+    throw new Error('Archive could not be opened. Check the passphrase or file integrity.');
   }
 }
