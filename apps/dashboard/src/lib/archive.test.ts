@@ -38,8 +38,6 @@ describe('encrypted archive', () => {
     const archive = await encryptSnapshot(snapshot, 'strong-passphrase');
     archive.keyDerivation.salt = 'A'.repeat(1_000_000);
 
-    await expect(decryptSnapshot(archive, 'strong-passphrase')).rejects.toThrow(
-      'not recognized',
-    );
+    await expect(decryptSnapshot(archive, 'strong-passphrase')).rejects.toThrow('not recognized');
   });
 });
